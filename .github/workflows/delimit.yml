@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Delimit
+      - name: Check API compatibility
         uses: delimit-ai/delimit-action@v1
         with:
           old_spec: openapi-v1.yaml
