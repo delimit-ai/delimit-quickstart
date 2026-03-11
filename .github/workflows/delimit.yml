@@ -1,0 +1,22 @@
+name: Delimit Compatibility Check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  delimit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Delimit
+        uses: delimit-ai/delimit-action@v1
+        with:
+          old_spec: openapi-v1.yaml
+          new_spec: openapi-v2.yaml
+          mode: enforce
