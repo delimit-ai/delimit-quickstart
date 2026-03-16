@@ -1,89 +1,54 @@
-# Delimit Quickstart
+# delimit-quickstart
 
-**Catch breaking API changes before they reach production.**
+Fork this repo, push a breaking API change, and see Delimit catch it in CI.
 
-[![CI](https://github.com/delimit-ai/delimit-quickstart/actions/workflows/delimit.yml/badge.svg)](https://github.com/delimit-ai/delimit-quickstart/actions/workflows/delimit.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+## What's in the box
 
-This repo demonstrates Delimit detecting a breaking API change in CI. Fork it, push, and see CI fail in under 5 minutes.
+- `openapi.yaml` -- a Pet Store API with 4 endpoints
+- `openapi-changed.yaml` -- the same spec with breaking changes:
+  - `GET /pets/{petId}` removed
+  - `DELETE /pets/{petId}` removed
+  - `Pet.id` type changed from `string` to `integer`
+  - `Pet.tag` field removed
+  - `Pet.status` enum value `pending` removed
+- `.github/workflows/delimit.yml` -- runs the Delimit action on every push/PR
 
----
+## Try it
 
-## The Problem
-
-A developer removes an endpoint, renames a field, or changes a response type. The change passes code review because nobody checked the API spec. Downstream clients break in production.
-
-Delimit runs in CI and catches these changes before they ship.
-
-## What This Repo Demonstrates
-
-Two OpenAPI specs are checked in:
-
-**v1** (`openapi-v1.yaml`):
-```
-GET /users/{id}    # Returns a user by ID
-```
-
-**v2** (`openapi-v2.yaml`):
-```
-# Endpoint removed
-```
-
-Removing an endpoint is a breaking change. Any client calling `GET /users/{id}` will get a 404.
-
-## Expected Result
-
-When CI runs, Delimit detects the breaking change and fails the build:
+1. Fork this repo
+2. Push any commit (or just trigger Actions manually)
+3. Watch CI fail:
 
 ```
-Error: Endpoint /users/{id} cannot be removed. Deprecate it first.
-
-Process completed with exit code 1.
+::error title=Delimit::Endpoint /pets/{petId} removed
+::error title=Delimit::Field id type changed from string to integer
 ```
 
-[See the actual failing run.](https://github.com/delimit-ai/delimit-quickstart/actions)
+4. On a PR, Delimit posts a comment with a migration guide
 
-## How to Fix the Breaking Change
+## Fix the build
 
-To make CI pass, you would keep the endpoint in `openapi-v2.yaml` and mark it as deprecated instead of removing it:
+Delete `openapi-changed.yaml` and update the workflow to compare `openapi.yaml` against itself. Or better -- edit `openapi-changed.yaml` to only add new endpoints and fields. Additive changes pass.
+
+## Use Delimit in your own repo
 
 ```yaml
-paths:
-  /users/{id}:
-    get:
-      summary: Get a user by ID
-      deprecated: true
-```
-
-Delimit allows deprecated endpoints. It blocks removals.
-
-## Why This Matters
-
-Breaking API changes cause silent failures, broken integrations, and production incidents. Delimit detects compatibility violations on every push and pull request — before they reach production.
-
-## Use Delimit in Your Own Repo
-
-Add the GitHub Action to any repository with OpenAPI specs:
-
-```yaml
+# .github/workflows/delimit.yml
 - uses: delimit-ai/delimit-action@v1
   with:
-    old_spec: path/to/old-spec.yaml
-    new_spec: path/to/new-spec.yaml
+    old_spec: openapi.yaml
+    new_spec: openapi.yaml
+    mode: enforce
 ```
 
-Or install the CLI:
+Point `old_spec` at your base spec and `new_spec` at the changed version. The action detects breaking changes and posts PR comments automatically.
+
+Or use the CLI:
 
 ```
-npx delimit-cli init
+npx delimit-cli lint openapi.yaml
 ```
-
-## Next Step
-
-1. **Fork this repo** and see Delimit catch the breaking change in your own CI
-2. **Add Delimit to your project** — copy the [workflow file](.github/workflows/delimit.yml) and point it at your specs
-3. **Learn more** at [github.com/delimit-ai/delimit](https://github.com/delimit-ai/delimit)
 
 ---
 
-[Delimit](https://github.com/delimit-ai/delimit) | [GitHub Action](https://github.com/delimit-ai/delimit-action) | [npm](https://www.npmjs.com/package/delimit-cli)
+[GitHub Action](https://github.com/delimit-ai/delimit-action) | [CLI](https://www.npmjs.com/package/delimit-cli) | [delimit.ai](https://delimit.ai)

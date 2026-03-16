@@ -1,4 +1,4 @@
-name: Delimit Compatibility Check
+name: Delimit
 
 on:
   push:
@@ -17,6 +17,6 @@ jobs:
       - name: Check API compatibility
         uses: delimit-ai/delimit-action@v1
         with:
-          old_spec: openapi-v1.yaml
-          new_spec: openapi-v2.yaml
+          old_spec: openapi.yaml
+          new_spec: openapi-changed.yaml
           mode: enforce
