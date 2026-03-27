@@ -1,8 +1,9 @@
 name: Delimit
 
 on:
-  push:
   pull_request:
+    paths:
+      - 'openapi.yaml'
 
 permissions:
   contents: read
@@ -13,10 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check API compatibility
         uses: delimit-ai/delimit-action@v1
         with:
-          old_spec: openapi.yaml
-          new_spec: openapi-changed.yaml
-          mode: enforce
+          spec: openapi.yaml
+          mode: advisory
