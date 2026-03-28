@@ -1,8 +1,18 @@
 # delimit-quickstart
 
-Fork this repo, push a breaking API change, and see Delimit catch it in CI.
+API governance in 2 minutes. Fork, push, see breaking changes blocked.
 
-## What's in the box
+## Fastest way to try
+
+No fork needed — run the self-contained demo:
+
+```bash
+npx delimit-cli demo
+```
+
+Creates a sample API, introduces breaking changes, runs governance, shows gate status. Done in seconds.
+
+## What's in this repo
 
 - `openapi.yaml` — a Pet Store API with 4 endpoints
 - `openapi-changed.yaml` — the same spec with 5 breaking changes:
@@ -11,29 +21,40 @@ Fork this repo, push a breaking API change, and see Delimit catch it in CI.
   - `Pet.id` type changed from `string` to `integer`
   - `Pet.tag` field removed
   - `Pet.status` enum value `pending` removed
-- `.github/workflows/delimit.yml` — runs the Delimit action on every push/PR
+- `.github/workflows/delimit.yml` — runs governance on every push/PR
+- `.github/workflows/drift-monitor.yml` — weekly drift detection
 
-## Try it
+## Try the GitHub Action
 
 1. Fork this repo
-2. Push any commit (or trigger Actions manually)
-3. On a PR, Delimit posts a comment like this:
+2. Open a PR (or push any commit)
+3. Delimit posts a governance cockpit comment:
 
-> **Breaking API Changes Detected**
+> ### Governance Gates
 >
-> | Severity | Change | Location |
-> |----------|--------|----------|
-> | Critical | Endpoint removed | `/pets/{petId}` |
-> | Warning | Type changed (string → integer) | `Pet.id` |
-> | Warning | Enum value removed | `Pet.status` |
+> | Gate | Status | Chain |
+> |------|--------|-------|
+> | API Lint | Fail | lint -> semver -> gov_evaluate |
+> | Policy Compliance | Fail (5 violations) | policy -> evidence_collect |
+> | Security Audit | Pass | security_audit -> evidence_collect |
+> | Deploy Readiness | Blocked | deploy_plan -> security_audit |
 >
-> **Semver: MAJOR** — 5 breaking changes, migration guide included
+> **5 breaking changes detected** — deploy blocked until resolved.
 
-4. In enforce mode, CI fails until the breaking changes are resolved
+4. In enforce mode, CI fails until the breaking changes are fixed
 
-## Use Delimit in your own repo
+## Set up governance in your project
 
-The simplest setup — auto-detects the base branch and diffs your spec:
+```bash
+npx delimit-cli init         # Guided wizard: detect framework, choose policy, first lint
+npx delimit-cli setup        # Configure Claude Code, Codex, Cursor, Gemini CLI
+```
+
+Includes compliance templates (SOC2, PCI-DSS, HIPAA) and automatic evidence collection.
+
+## GitHub Action
+
+Simplest setup — auto-detects your spec:
 
 ```yaml
 - uses: delimit-ai/delimit-action@v1
@@ -41,7 +62,7 @@ The simplest setup — auto-detects the base branch and diffs your spec:
     spec: api/openapi.yaml
 ```
 
-Or compare two specific files:
+Or compare two files explicitly:
 
 ```yaml
 - uses: delimit-ai/delimit-action@v1
@@ -51,14 +72,8 @@ Or compare two specific files:
     mode: enforce
 ```
 
-CLI:
-
-```
-npx delimit-cli lint openapi.yaml
-```
-
 No config. No API keys. No account.
 
 ---
 
-[Delimit](https://delimit.ai) | [GitHub Action](https://github.com/marketplace/actions/delimit-api-governance) | [CLI](https://www.npmjs.com/package/delimit-cli) | [Live Demo](https://github.com/delimit-ai/delimit-action-demo/pull/2)
+[Delimit](https://delimit.ai) | [Dashboard](https://app.delimit.ai) | [GitHub Action](https://github.com/marketplace/actions/delimit-api-governance) | [CLI](https://www.npmjs.com/package/delimit-cli) | [Docs](https://delimit.ai/docs)

@@ -1,0 +1,32 @@
+name: API Drift Monitor
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'  # Weekly on Monday at 9:17 AM UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for API drift
+        run: npx delimit-cli lint openapi.yaml openapi.yaml --baseline
+
+      - name: Create issue on drift
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'API Drift Detected',
+              body: 'The weekly drift monitor detected spec changes without governance review. Run `delimit lint` to investigate.',
+              labels: ['api-governance'],
+            });
