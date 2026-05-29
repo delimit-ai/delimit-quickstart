@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: Pet Store API
-  version: "1.0.0"
+  version: "2.0.0"
   description: Sample API for Delimit quickstart
 paths:
   /pets:
@@ -53,18 +53,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Pet"
-    delete:
-      summary: Delete a pet
-      operationId: deletePet
+    patch:
+      summary: Update a pet
+      operationId: updatePet
       parameters:
         - name: petId
           in: path
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
       responses:
-        "204":
-          description: Pet deleted
+        "200":
+          description: Pet updated
 components:
   schemas:
     Pet:
@@ -74,7 +80,7 @@ components:
         - name
       properties:
         id:
-          type: string
+          type: integer
         name:
           type: string
         tag:
@@ -83,5 +89,4 @@ components:
           type: string
           enum:
             - available
-            - pending
             - adopted
